@@ -860,6 +860,12 @@ noreturn void pal_linux_main(char* uptr_libpal_uri, size_t libpal_uri_len, char*
     }
     g_pal_internal_mem_size = extra_mem_size + PAL_INITIAL_MEM_SIZE;
 
+    /* seal-key initialization must come before protected-files initialization */
+    if ((ret = init_seal_key()) < 0) {
+        log_error("Failed to initialize SGX sealing key parameters: %d", ret);
+        ocall_exit(1, /*is_exitgroup=*/true);
+    }
+
     if ((ret = init_file_check_policy()) < 0) {
         log_error("Failed to load the file check policy: %d", ret);
         ocall_exit(1, /*is_exitgroup=*/true);
