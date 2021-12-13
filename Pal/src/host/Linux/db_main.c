@@ -199,7 +199,7 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
     int argc;
     const char** argv;
     const char** envp;
-    int host_euid, host_egid;
+    int host_euid = -1, host_egid = -1; // has to be set, otherwise GCC erroneously emits a warning
     ElfW(Addr) sysinfo_ehdr;
     read_args_from_stack(initial_rsp, &argc, &argv, &envp, &host_euid, &host_egid, &sysinfo_ehdr);
 
