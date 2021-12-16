@@ -25,19 +25,25 @@ void* g_enclave_base;
 void* g_enclave_top;
 bool g_allowed_files_warn = false;
 
-/* SGX's EGETKEY(SEAL_KEY) uses three masks as key-derivation material:
+/*
+ * SGX's EGETKEY(SEAL_KEY) uses three masks as key-derivation material:
  *   - KEYREQUEST.ATTRIBUTESMASK.FLAGS
  *   - KEYREQUEST.ATTRIBUTESMASK.XFRM
  *   - KEYREQUEST.MISCMASK
  *
- * These default masks may be replaced by used-defined ones, correspondingly:
+ * These default masks may be replaced by user-defined ones (specified in the manifest file).
+ * Corresponding manifest keys are:
  *   - `sgx.seal_key.flags_mask`
  *   - `sgx.seal_key.xfrm_mask`
  *   - `sgx.seal_key.misc_mask`
  */
-uint64_t g_seal_key_flags_mask = SGX_FLAGS_MASK_CONST;
-uint64_t g_seal_key_xfrm_mask  = SGX_XFRM_MASK_CONST;
-uint32_t g_seal_key_misc_mask  = SGX_MISCSELECT_MASK_CONST;
+static uint64_t g_seal_key_flags_mask = SGX_FLAGS_MASK_CONST;
+static uint64_t g_seal_key_xfrm_mask  = SGX_XFRM_MASK_CONST;
+static uint32_t g_seal_key_misc_mask  = SGX_MISCSELECT_MASK_CONST;
+
+static_assert(sizeof(g_seal_key_flags_mask) + sizeof(g_seal_key_xfrm_mask) ==
+        sizeof(sgx_attributes_t), "wrong types");
+static_assert(sizeof(g_seal_key_misc_mask) == sizeof(sgx_misc_select_t), "wrong types");
 
 bool sgx_is_completely_within_enclave(const void* addr, size_t size) {
     if ((uintptr_t)addr > UINTPTR_MAX - size) {
@@ -1031,7 +1037,7 @@ out:
     return ret;
 }
 
-int init_seal_key(void) {
+int init_seal_key_material(void) {
     int ret;
 
     ret = update_seal_key_mask("sgx.seal_key.flags_mask", (uint8_t*)&g_seal_key_flags_mask,
