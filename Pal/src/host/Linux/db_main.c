@@ -41,7 +41,7 @@ char* g_pal_internal_mem_addr = NULL;
 
 const size_t g_page_size = PRESET_PAGESIZE;
 
-static void read_args_from_stack(void* initial_rsp, int* out_argc, const char*** out_argv,
+static void read_info_from_stack(void* initial_rsp, int* out_argc, const char*** out_argv,
                                  const char*** out_envp, int* out_host_euid, int* out_host_egid,
                                  ElfW(Addr)* out_sysinfo_ehdr) {
     /* The stack layout on program entry is:
@@ -109,10 +109,10 @@ void _DkGetAvailableUserAddressRange(PAL_PTR* start, PAL_PTR* end) {
         if (start_addr >= end_addr)
             INIT_FAIL(PAL_ERROR_NOMEM, "no user memory available");
 
-        void* mem = (void*)DO_SYSCALL(mmap, start_addr, g_pal_common_state.alloc_align, PROT_NONE,
+        void* mem = (void*)DO_SYSCALL(mmap, start_addr, g_pal_public_state.alloc_align, PROT_NONE,
                                       MAP_FIXED | MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         if (!IS_PTR_ERR(mem)) {
-            DO_SYSCALL(munmap, mem, g_pal_common_state.alloc_align);
+            DO_SYSCALL(munmap, mem, g_pal_public_state.alloc_align);
             if (mem == start_addr)
                 break;
         }
@@ -189,8 +189,8 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
     call_init_array();
 
     /* Initialize alloc_align as early as possible, a lot of PAL APIs depend on this being set. */
-    g_pal_common_state.alloc_align = g_page_size;
-    assert(IS_POWER_OF_2(g_pal_common_state.alloc_align));
+    g_pal_public_state.alloc_align = g_page_size;
+    assert(IS_POWER_OF_2(g_pal_public_state.alloc_align));
 
     ret = init_random();
     if (ret < 0)
@@ -201,7 +201,7 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
     const char** envp;
     int host_euid = -1, host_egid = -1; // has to be set, otherwise GCC erroneously emits a warning
     ElfW(Addr) sysinfo_ehdr;
-    read_args_from_stack(initial_rsp, &argc, &argv, &envp, &host_euid, &host_egid, &sysinfo_ehdr);
+    read_info_from_stack(initial_rsp, &argc, &argv, &envp, &host_euid, &host_egid, &sysinfo_ehdr);
 
     if (argc < 4)
         print_usage_and_exit(argv[0]);  // may be NULL!
@@ -233,7 +233,7 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
         }
     }
 
-    g_pal_common_state.host_environ = envp;
+    g_pal_linux_state.host_environ = envp;
 
     /* Prepare an initial memory pool for the slab allocator. This is necessary because we cannot
      * allocate the PAL-internal range yet: we need to parse the manifest to know its size. */
@@ -331,7 +331,7 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
         log_warning("vvar address range not preloaded, is your system missing vvar?!");
     }
 
-    g_pal_common_state.host_pid = DO_SYSCALL(getpid);
+    g_pal_linux_state.host_pid = DO_SYSCALL(getpid);
     g_pal_common_state.host_euid = host_euid;
     g_pal_common_state.host_egid = host_egid;
 
@@ -362,11 +362,11 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
     g_pal_common_state.raw_manifest_data = manifest;
 
     char errbuf[256];
-    g_pal_common_state.manifest_root = toml_parse(manifest, errbuf, sizeof(errbuf));
-    if (!g_pal_common_state.manifest_root)
+    g_pal_public_state.manifest_root = toml_parse(manifest, errbuf, sizeof(errbuf));
+    if (!g_pal_public_state.manifest_root)
         INIT_FAIL_MANIFEST(PAL_ERROR_DENIED, errbuf);
 
-    ret = toml_sizestring_in(g_pal_common_state.manifest_root, "loader.pal_internal_mem_size",
+    ret = toml_sizestring_in(g_pal_public_state.manifest_root, "loader.pal_internal_mem_size",
                              /*defaultval=*/g_page_size, &g_pal_internal_mem_size);
     if (ret < 0) {
         INIT_FAIL(PAL_ERROR_INVAL, "Cannot parse 'loader.pal_internal_mem_size'");

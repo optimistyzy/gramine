@@ -28,6 +28,8 @@ struct timeval;
 
 /* Part of Linux PAL private state which is not shared with other PALs. */
 extern struct pal_linux_state {
+    const char** host_environ;
+    unsigned int host_pid;
     unsigned long memory_quota;
     long int (*vdso_clock_gettime)(long int clk, struct timespec* tp);
 } g_pal_linux_state;

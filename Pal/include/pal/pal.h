@@ -109,8 +109,8 @@ typedef struct PAL_MEM_INFO_ {
 
 /********** PAL APIs **********/
 
-/* Part of PAL state which is shared between all PALs and accessible (read-only) by the code run by
- * PAL (usually our LibOS). */
+/* Part of PAL state which is shared between all PALs and accessible (read-only) by the binary
+ * started by PAL (usually our LibOS). */
 struct pal_public_state {
     const char* host_type;
 

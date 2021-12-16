@@ -24,7 +24,7 @@
 #include "spinlock.h"
 
 /* Linux PAL cannot use mmap/unmap to manage thread stacks because this may overlap with
- * pal_public_state.user_address. Linux PAL also cannot just use malloc/free because DkThreadExit
+ * g_pal_public_state.user_address. Linux PAL also cannot just use malloc/free because DkThreadExit
  * needs to use raw system calls and inline asm. Thus, we resort to recycling thread stacks
  * allocated by previous threads and not used anymore. This still leaks memory but at least it is
  * bounded by the maximum number of simultaneously executing threads. Note that main thread is not
@@ -245,7 +245,7 @@ noreturn void _DkThreadExit(int* clear_child_tid) {
 }
 
 int _DkThreadResume(PAL_HANDLE thread_handle) {
-    int ret = DO_SYSCALL(tgkill, g_pal_common_state.host_pid, thread_handle->thread.tid, SIGCONT);
+    int ret = DO_SYSCALL(tgkill, g_pal_linux_state.host_pid, thread_handle->thread.tid, SIGCONT);
 
     if (ret < 0)
         return -PAL_ERROR_DENIED;

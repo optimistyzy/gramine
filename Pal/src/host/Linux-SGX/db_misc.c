@@ -531,7 +531,7 @@ int _DkAttestationQuote(const void* user_report_data, PAL_NUM user_report_data_s
 
     /* read sgx.ra_client_spid from manifest (must be hex string) */
     char* ra_client_spid_str = NULL;
-    ret = toml_string_in(g_pal_common_state.manifest_root, "sgx.ra_client_spid",
+    ret = toml_string_in(g_pal_public_state.manifest_root, "sgx.ra_client_spid",
                          &ra_client_spid_str);
     if (ret < 0) {
         log_error("Cannot parse 'sgx.ra_client_spid'");
@@ -566,7 +566,7 @@ int _DkAttestationQuote(const void* user_report_data, PAL_NUM user_report_data_s
         }
 
         /* read sgx.ra_client_linkable from manifest */
-        ret = toml_bool_in(g_pal_common_state.manifest_root, "sgx.ra_client_linkable",
+        ret = toml_bool_in(g_pal_public_state.manifest_root, "sgx.ra_client_linkable",
                            /*defaultval=*/false, &linkable);
         if (ret < 0) {
             log_error("Cannot parse 'sgx.ra_client_linkable' (the value must be `true` or "

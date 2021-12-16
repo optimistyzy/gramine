@@ -30,20 +30,13 @@
 struct pal_common_state {
     uint64_t instance_id;
 
-    /* Both of these are obviously untrusted on SGX, but we use them only for operations on the
-     * host. */
-    const char** host_environ;
-    unsigned int host_pid;
+    /* These are obviously untrusted on SGX, but we use them only for operations on the host. */
     unsigned int host_euid;
     unsigned int host_egid;
 
     PAL_HANDLE parent_process;
 
     const char* raw_manifest_data;
-    toml_table_t* manifest_root;
-
-    /* May not be the same as page size, see e.g. SYSTEM_INFO::dwAllocationGranularity on Windows */
-    size_t alloc_align;
 };
 extern struct pal_common_state g_pal_common_state;
 extern struct pal_public_state g_pal_public_state;
@@ -143,12 +136,12 @@ void notify_failure(unsigned long error);
 
 int add_preloaded_range(uintptr_t start, uintptr_t end, const char* comment);
 
-#define IS_ALLOC_ALIGNED(addr)     IS_ALIGNED_POW2(addr, g_pal_common_state.alloc_align)
-#define IS_ALLOC_ALIGNED_PTR(addr) IS_ALIGNED_PTR_POW2(addr, g_pal_common_state.alloc_align)
-#define ALLOC_ALIGN_UP(addr)       ALIGN_UP_POW2(addr, g_pal_common_state.alloc_align)
-#define ALLOC_ALIGN_UP_PTR(addr)   ALIGN_UP_PTR_POW2(addr, g_pal_common_state.alloc_align)
-#define ALLOC_ALIGN_DOWN(addr)     ALIGN_DOWN_POW2(addr, g_pal_common_state.alloc_align)
-#define ALLOC_ALIGN_DOWN_PTR(addr) ALIGN_DOWN_PTR_POW2(addr, g_pal_common_state.alloc_align)
+#define IS_ALLOC_ALIGNED(addr)     IS_ALIGNED_POW2(addr, g_pal_public_state.alloc_align)
+#define IS_ALLOC_ALIGNED_PTR(addr) IS_ALIGNED_PTR_POW2(addr, g_pal_public_state.alloc_align)
+#define ALLOC_ALIGN_UP(addr)       ALIGN_UP_POW2(addr, g_pal_public_state.alloc_align)
+#define ALLOC_ALIGN_UP_PTR(addr)   ALIGN_UP_PTR_POW2(addr, g_pal_public_state.alloc_align)
+#define ALLOC_ALIGN_DOWN(addr)     ALIGN_DOWN_POW2(addr, g_pal_public_state.alloc_align)
+#define ALLOC_ALIGN_DOWN_PTR(addr) ALIGN_DOWN_PTR_POW2(addr, g_pal_public_state.alloc_align)
 
 /*!
  * \brief Main initialization function

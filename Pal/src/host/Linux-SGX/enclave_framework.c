@@ -637,7 +637,7 @@ out:
 static int init_trusted_files_from_toml_table(void) {
     int ret;
 
-    toml_table_t* manifest_sgx = toml_table_in(g_pal_common_state.manifest_root, "sgx");
+    toml_table_t* manifest_sgx = toml_table_in(g_pal_public_state.manifest_root, "sgx");
     if (!manifest_sgx)
         return 0;
 
@@ -685,7 +685,7 @@ static int init_trusted_files_from_toml_table(void) {
 
         /* sgx.trusted_checksum entries are actually SHA-256 hashes, so the better name would be
          * sgx.trusted_hash but we don't want to break old manifests so we keep the legacy name */
-        ret = toml_string_in(g_pal_common_state.manifest_root, toml_trusted_checksum_key,
+        ret = toml_string_in(g_pal_public_state.manifest_root, toml_trusted_checksum_key,
                              &toml_trusted_checksum_str);
         if (ret < 0 || !toml_trusted_checksum_str) {
             log_error("Invalid trusted checksum in manifest: '%s' (not found or not a string)",
@@ -720,7 +720,7 @@ out:
 static int init_trusted_files_from_toml_array(void) {
     int ret;
 
-    toml_table_t* manifest_sgx = toml_table_in(g_pal_common_state.manifest_root, "sgx");
+    toml_table_t* manifest_sgx = toml_table_in(g_pal_public_state.manifest_root, "sgx");
     if (!manifest_sgx)
         return 0;
 
@@ -800,7 +800,7 @@ static void maybe_warn_about_allowed_files_usage(void) {
 static int init_allowed_files_from_toml_table(void) {
     int ret;
 
-    toml_table_t* manifest_sgx = toml_table_in(g_pal_common_state.manifest_root, "sgx");
+    toml_table_t* manifest_sgx = toml_table_in(g_pal_public_state.manifest_root, "sgx");
     if (!manifest_sgx)
         return 0;
 
@@ -857,7 +857,7 @@ out:
 static int init_allowed_files_from_toml_array(void) {
     int ret;
 
-    toml_table_t* manifest_sgx = toml_table_in(g_pal_common_state.manifest_root, "sgx");
+    toml_table_t* manifest_sgx = toml_table_in(g_pal_public_state.manifest_root, "sgx");
     if (!manifest_sgx)
         return 0;
 
@@ -952,7 +952,7 @@ int init_file_check_policy(void) {
     int ret;
 
     char* file_check_policy_str = NULL;
-    ret = toml_string_in(g_pal_common_state.manifest_root, "sgx.file_check_policy",
+    ret = toml_string_in(g_pal_public_state.manifest_root, "sgx.file_check_policy",
                          &file_check_policy_str);
     if (ret < 0) {
         log_error("Cannot parse 'sgx.file_check_policy'");

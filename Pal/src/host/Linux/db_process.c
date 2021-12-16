@@ -106,7 +106,7 @@ static int child_process(struct proc_param* proc_param) {
         return ret;
 
     /* child */
-    DO_SYSCALL(execve, g_pal_loader_path, proc_param->argv, g_pal_common_state.host_environ);
+    DO_SYSCALL(execve, g_pal_loader_path, proc_param->argv, g_pal_linux_state.host_environ);
     /* execve failed, but we're after vfork, so we can't do anything more than just exit */
     DO_SYSCALL(exit_group, 1);
     die_or_inf_loop();

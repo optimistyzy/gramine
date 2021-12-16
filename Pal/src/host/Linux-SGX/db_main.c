@@ -543,33 +543,33 @@ static int print_warnings_on_insecure_configs(PAL_HANDLE parent_process) {
     bool enable_sysfs_topo = false;
 
     char* log_level_str = NULL;
-    ret = toml_string_in(g_pal_common_state.manifest_root, "loader.log_level", &log_level_str);
+    ret = toml_string_in(g_pal_public_state.manifest_root, "loader.log_level", &log_level_str);
     if (ret < 0)
         goto out;
     if (log_level_str && strcmp(log_level_str, "none") && strcmp(log_level_str, "error"))
         verbose_log_level = true;
 
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "sgx.debug",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "sgx.debug",
                        /*defaultval=*/false, &sgx_debug);
     if (ret < 0)
         goto out;
 
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "loader.insecure__use_cmdline_argv",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "loader.insecure__use_cmdline_argv",
                        /*defaultval=*/false, &use_cmdline_argv);
     if (ret < 0)
         goto out;
 
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "loader.insecure__use_host_env",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "loader.insecure__use_host_env",
                        /*defaultval=*/false, &use_host_env);
     if (ret < 0)
         goto out;
 
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "loader.insecure__disable_aslr",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "loader.insecure__disable_aslr",
                        /*defaultval=*/false, &disable_aslr);
     if (ret < 0)
         goto out;
 
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "sys.insecure__allow_eventfd",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "sys.insecure__allow_eventfd",
                        /*defaultval=*/false, &allow_eventfd);
     if (ret < 0)
         goto out;
@@ -577,7 +577,7 @@ static int print_warnings_on_insecure_configs(PAL_HANDLE parent_process) {
     if (get_file_check_policy() == FILE_CHECK_POLICY_ALLOW_ALL_BUT_LOG)
         allow_all_files = true;
 
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "fs.experimental__enable_sysfs_topology",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "fs.experimental__enable_sysfs_topology",
                        /*defaultval=*/false, &enable_sysfs_topo);
     if (ret < 0)
         goto out;
@@ -675,8 +675,8 @@ noreturn void pal_linux_main(char* uptr_libpal_uri, size_t libpal_uri_len, char*
     call_init_array();
 
     /* Initialize alloc_align as early as possible, a lot of PAL APIs depend on this being set. */
-    g_pal_common_state.alloc_align = g_page_size;
-    assert(IS_POWER_OF_2(g_pal_common_state.alloc_align));
+    g_pal_public_state.alloc_align = g_page_size;
+    assert(IS_POWER_OF_2(g_pal_public_state.alloc_align));
 
     struct pal_sec sec_info;
     if (!sgx_copy_to_enclave(&sec_info, sizeof(sec_info), uptr_sec_info, sizeof(*uptr_sec_info))) {
@@ -808,11 +808,11 @@ noreturn void pal_linux_main(char* uptr_libpal_uri, size_t libpal_uri_len, char*
         ocall_exit(1, /*is_exitgroup=*/true);
     }
     g_pal_common_state.raw_manifest_data = manifest_addr;
-    g_pal_common_state.manifest_root = manifest_root;
+    g_pal_public_state.manifest_root = manifest_root;
 
     /* parse and store host topology info into g_pal_linuxsgx_state struct */
     bool enable_sysfs_topology; /* TODO: remove this manifest option once sysfs topo is stable */
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "fs.experimental__enable_sysfs_topology",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "fs.experimental__enable_sysfs_topology",
                        /*defaultval=*/false, &enable_sysfs_topology);
     if (ret < 0) {
         log_error("Cannot parse 'fs.experimental__enable_sysfs_topology' (the value must be `true` "
@@ -831,7 +831,7 @@ noreturn void pal_linux_main(char* uptr_libpal_uri, size_t libpal_uri_len, char*
     }
 
     bool preheat_enclave;
-    ret = toml_bool_in(g_pal_common_state.manifest_root, "sgx.preheat_enclave",
+    ret = toml_bool_in(g_pal_public_state.manifest_root, "sgx.preheat_enclave",
                        /*defaultval=*/false, &preheat_enclave);
     if (ret < 0) {
         log_error("Cannot parse 'sgx.preheat_enclave' (the value must be `true` or `false`)");
@@ -843,7 +843,7 @@ noreturn void pal_linux_main(char* uptr_libpal_uri, size_t libpal_uri_len, char*
     /* For backward compatibility, `loader.pal_internal_mem_size` does not include
      * PAL_INITIAL_MEM_SIZE */
     size_t extra_mem_size;
-    ret = toml_sizestring_in(g_pal_common_state.manifest_root, "loader.pal_internal_mem_size",
+    ret = toml_sizestring_in(g_pal_public_state.manifest_root, "loader.pal_internal_mem_size",
                              /*defaultval=*/0, &extra_mem_size);
     if (ret < 0) {
         log_error("Cannot parse 'loader.pal_internal_mem_size'");

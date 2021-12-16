@@ -79,19 +79,20 @@ Basic types
    :project: pal
    :members:
 
-Gramine control block
-^^^^^^^^^^^^^^^^^^^^^^
+PAL public state
+^^^^^^^^^^^^^^^^
 
-The control block in Gramine is a structure that provides static immutable
-information about the current process and its host. The address of the control
-block is resolved via :func:`DkGetPalPublicState()` and can be memorized in a global
-variable for ease of use.
-
-The fields of the Gramine control block are defined as follows:
+All PALs in Gramine expose a structure that provides static immutable
+information about the current process and its host. The address of the
+structure can be retrieved via :func:`DkGetPalPublicState()` and can be
+memorized in a global variable for ease of use.
 
 .. doxygenstruct:: pal_public_state
    :project: pal
    :members:
+
+PAL public state - topology information
+"""""""""""""""""""""""""""""""""""""""
 
 .. doxygentypedef:: PAL_CPU_INFO
    :project: pal
