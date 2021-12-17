@@ -536,9 +536,9 @@ Attribute masks for SGX sealing key derivation
 
 ::
 
-    sgx.seal_key.flags_mask = "[8-byte hex value]"  (default: "ffffffffffffffff")
-    sgx.seal_key.xfrm_mask  = "[8-byte hex value]"  (default: "fffffffffff9ff1b")
-    sgx.seal_key.misc_mask  = "[4-byte hex value]"  (default: "ffffffff")
+    sgx.seal_key.flags_mask = "[8-byte hex value]"  (default: "0xffffffffffffffff")
+    sgx.seal_key.xfrm_mask  = "[8-byte hex value]"  (default: "0xfffffffffff9ff1b")
+    sgx.seal_key.misc_mask  = "[4-byte hex value]"  (default: "0xffffffff")
 
 This syntax specifies masks used to generate the SGX sealing key. These masks
 correspond to the following SGX ``KEYREQUEST`` struct fields:

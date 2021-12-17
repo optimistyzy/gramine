@@ -1012,18 +1012,24 @@ static int update_seal_key_mask(const char* mask_name, uint8_t* mask_ptr, size_t
         return 0;
     }
 
-    if (strlen(mask_str) != mask_size * 2) {
-        log_error("Malformed '%s' value in the manifest", mask_name);
+    if (strlen(mask_str) != 2 + mask_size * 2) {
+        log_error("Malformed '%s' value in the manifest (wrong size)", mask_name);
+        ret = -PAL_ERROR_INVAL;
+        goto out;
+    }
+
+    if (mask_str[0] != '0' || (mask_str[1] != 'x' && mask_str[1] != 'X')) {
+        log_error("Malformed '%s' value in the manifest (must start with '0x')", mask_name);
         ret = -PAL_ERROR_INVAL;
         goto out;
     }
 
     memset(mask_ptr, 0, mask_size);
 
-    for (size_t i = 0; i < strlen(mask_str); i++) {
-        int8_t val = hex2dec(mask_str[i]);
+    for (size_t i = 0; i < mask_size * 2; i++) {
+        int8_t val = hex2dec(mask_str[i + 2]); /* skip first two chars (the '0x' prefix) */
         if (val < 0) {
-            log_error("Malformed '%s' value in the manifest", mask_name);
+            log_error("Malformed '%s' value in the manifest (not a hex number)", mask_name);
             ret = -PAL_ERROR_INVAL;
             goto out;
         }
