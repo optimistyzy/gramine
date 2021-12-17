@@ -332,8 +332,8 @@ noreturn void pal_linux_main(void* initial_rsp, void* fini_callback) {
     }
 
     g_pal_linux_state.host_pid = DO_SYSCALL(getpid);
-    g_pal_common_state.host_euid = host_euid;
-    g_pal_common_state.host_egid = host_egid;
+    g_pal_linux_state.host_euid = host_euid;
+    g_pal_linux_state.host_egid = host_egid;
 
     PAL_HANDLE parent = NULL;
     char* manifest = NULL;

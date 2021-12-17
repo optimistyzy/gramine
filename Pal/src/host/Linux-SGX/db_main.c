@@ -718,8 +718,8 @@ noreturn void pal_linux_main(char* uptr_libpal_uri, size_t libpal_uri_len, char*
         ocall_exit(1, /*is_exitgroup=*/true);
     }
 
-    g_pal_common_state.host_euid = host_euid;
-    g_pal_common_state.host_egid = host_egid;
+    g_pal_linuxsgx_state.host_euid = host_euid;
+    g_pal_linuxsgx_state.host_egid = host_egid;
 
     /* Set up page allocator and slab manager. There is no need to provide any initial memory pool,
      * because the slab manager can use normal allocations (`_DkVirtualMemoryAlloc`) right away. */

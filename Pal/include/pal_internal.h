@@ -29,13 +29,7 @@
  */
 struct pal_common_state {
     uint64_t instance_id;
-
-    /* These are obviously untrusted on SGX, but we use them only for operations on the host. */
-    unsigned int host_euid;
-    unsigned int host_egid;
-
     PAL_HANDLE parent_process;
-
     const char* raw_manifest_data;
 };
 extern struct pal_common_state g_pal_common_state;

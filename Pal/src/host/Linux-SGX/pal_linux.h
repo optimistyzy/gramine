@@ -38,6 +38,10 @@ extern struct pal_linuxsgx_state {
     sgx_target_info_t qe_targetinfo; /* received from untrusted host, use carefully */
     sgx_report_body_t enclave_info;  /* cached self-report result, trusted */
 
+    /* These are obviously untrusted, but we use them only for operations on the host. */
+    unsigned int host_euid;
+    unsigned int host_egid;
+
     /* remaining heap usable by application */
     PAL_PTR heap_min, heap_max;
 } g_pal_linuxsgx_state;
